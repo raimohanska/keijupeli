@@ -53,7 +53,7 @@ $(function() {
     }
   })
   position = speed.sample(20).filter(".isNonZero")
-    .scan(v(300,200), limitPosition(0, 0, 680, 445))  
+    .scan(v(300,200), limitPosition(0, 0, 640, 405))  
     .combine(sine, ".add")
   fairy = $("#fairy")
 
