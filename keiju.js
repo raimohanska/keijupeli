@@ -18,7 +18,7 @@ v0 = v(0, 0)
 function limitPosition(minX, minY, maxX, maxY) {
   return function(pos, delta) {
     var newPos = pos.add(delta)
-    if (newPos.x < minX || newPos.x > maxX || newPos.y < minY || newPos.y > maxY) 
+    if (newPos.x < minX || newPos.x > maxX || newPos.y < minY || newPos.y > maxY) 
       return pos
     return newPos
   }
