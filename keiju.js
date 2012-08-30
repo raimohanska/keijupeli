@@ -24,6 +24,25 @@ function limitPosition(minX, minY, maxX, maxY) {
   }
 }
 
+function integrateAcceleration(curSpeed, dir) { 
+  var maxSpeed = 5
+  var deceleration = 1
+  if (dir.isZero()) {
+    if (curSpeed.getLength() > deceleration) {
+      return curSpeed.withLength(curSpeed.getLength() - deceleration)
+    } else {
+      return v0
+    }
+  } else {
+    var newSpeed = curSpeed.add(dir)
+    if (newSpeed.getLength() <= maxSpeed) {
+      return newSpeed
+    } else {
+      return newSpeed.withLength(maxSpeed)
+    }
+  }
+}
+
 $(function() {
   var left = keyState(37, v(-1, 0), v0)
   var up = keyState(38, v(0, -1), v0)
@@ -34,24 +53,7 @@ $(function() {
               .map(function(a) { return Math.sin(a) * 5})
               .map(function(y) { return v(0,y)})
   acceleration = Bacon.combineWith([up, left, right, down], ".add")
-  speed = acceleration.sample(20).scan(v0, function(curSpeed, dir) { 
-    var maxSpeed = 5
-    var deceleration = 1
-    if (dir.isZero()) {
-      if (curSpeed.getLength() > deceleration) {
-        return curSpeed.withLength(curSpeed.getLength() - deceleration)
-      } else {
-        return v0
-      }
-    } else {
-      var newSpeed = curSpeed.add(dir)
-      if (newSpeed.getLength() <= maxSpeed) {
-        return newSpeed
-      } else {
-        return newSpeed.withLength(maxSpeed)
-      }
-    }
-  })
+  speed = acceleration.sample(20).scan(v0, integrateAcceleration)
   position = speed.sample(20).filter(".isNonZero")
     .scan(v(300,200), limitPosition(0, 0, 640, 405))  
     .combine(sine, ".add")
