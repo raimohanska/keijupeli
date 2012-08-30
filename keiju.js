@@ -43,26 +43,35 @@ function integrateAcceleration(curSpeed, dir) {
   }
 }
 
+function sine(factor) {
+  return Bacon.interval(20)
+    .scan(0, function(prev) { return prev+0.1 })
+    .map(function(a) { return Math.sin(a) * factor})
+}
+
 function setupFairy() {
   var left = keyState(37, v(-1, 0), v0)
   var up = keyState(38, v(0, -1), v0)
   var right = keyState(39, v(1, 0), v0)
   var down = keyState(40, v(0, 1), v0)
-  sine = Bacon.interval(20)
-              .scan(0, function(prev) { return prev+0.1 })
-              .map(function(a) { return Math.sin(a) * 5})
-              .map(function(y) { return v(0,y)})
   acceleration = Bacon.combineWith([up, left, right, down], ".add")
   speed = acceleration.sample(20).scan(v0, integrateAcceleration)
   position = speed.sample(20).filter(".isNonZero")
     .scan(v(300,200), limitPosition(0, 0, 640, 405))  
-    .combine(sine, ".add")
+    .combine(sine(5).map(function(y) { return v(0,y)}), ".add")
   fairy = $("#fairy")
 
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
 }
 
 function setupSpaceman() {
+  var angle = sine(10)
+  var spaceman = $("#spaceman")
+  spaceman.css({left:100, top:100})
+  angle.onValue(function(degree) {
+     spaceman.css({ WebkitTransform: 'rotate(' + degree + 'deg)'});
+     spaceman.css({ '-moz-transform': 'rotate(' + degree + 'deg)'});
+  })
 }
 
 $(function() {
