@@ -43,7 +43,7 @@ function integrateAcceleration(curSpeed, dir) {
   }
 }
 
-$(function() {
+function setupFairy() {
   var left = keyState(37, v(-1, 0), v0)
   var up = keyState(38, v(0, -1), v0)
   var right = keyState(39, v(1, 0), v0)
@@ -60,4 +60,12 @@ $(function() {
   fairy = $("#fairy")
 
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
+}
+
+function setupSpaceman() {
+}
+
+$(function() {
+  setupFairy()
+  setupSpaceman()
 })
