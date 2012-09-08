@@ -1,5 +1,5 @@
 #sky {
-  background: url('./tausta.jpg');
+  background: url('../images/tausta.jpg');
   background-size: 800px 600px;
   background-color: #aaaaff;
   position: relative;
@@ -7,7 +7,7 @@
   height: 600px;
 }
 #fairy { 
-  background-image: url('keiju.png');
+  background-image: url('../images/keiju.png');
   background-size:160px;;
   background-repeat:no-repeat;
   position: absolute;
@@ -16,7 +16,7 @@
   height: 300px;
 }
 #spaceman { 
-  background-image: url('avaruusmies.png');
+  background-image: url('../images/avaruusmies.png');
   background-size:160px;;
   background-repeat:no-repeat;
   position: absolute;
