@@ -1,6 +1,3 @@
-var bus = new Bacon.Bus()
-var tickInteval = 20
-
 function show(value) { 
   console.log(value)
 }
@@ -18,14 +15,19 @@ function keyState(keyCode, downValue, upValue) {
 function v(x, y) { return new Vector2D(x, y) }
 v0 = v(0, 0)
 
-function limitPosition(minX, minY, maxX, maxY) {
+function limitPosition(dimensions) {
   return function(pos, delta) {
     var newPos = pos.add(delta)
-    if (newPos.x < minX || newPos.x > maxX || newPos.y < minY || newPos.y > maxY) 
+    if (outOfBounds(newPos, dimensions))
       return pos
     return newPos
   }
 }
+
+function outOfBounds(pos, dimensions) {
+  return (pos.x < 0 || pos.x > World.width - dimensions.width || pos.y < 0 || pos.y > World.height - dimensions.height) 
+}
+
 
 function integrateAcceleration(curSpeed, dir) { 
   var maxSpeed = 5
@@ -47,26 +49,35 @@ function integrateAcceleration(curSpeed, dir) {
 }
 
 function sine(amplitude, frequency, phase) {
-  return Bacon.interval(tickInteval)
+  return Bacon.interval(World.tickInteval)
     .scan(phase, function(prev) { return prev + frequency })
     .map(function(a) { return Math.sin(a) * amplitude})
 }
 
 function Fairy() {
+  var dimensions = {
+    width: 160,
+    height: 203
+  }
   var left = keyState(37, v(-1, 0), v0)
   var up = keyState(38, v(0, -1), v0)
   var right = keyState(39, v(1, 0), v0)
   var down = keyState(40, v(0, 1), v0)
   var acceleration = Bacon.combineWith([up, left, right, down], ".add")
-  var speed = acceleration.sample(tickInteval).scan(v0, integrateAcceleration)
-  var position = speed.sample(tickInteval).filter(".isNonZero")
-    .scan(v(300,200), limitPosition(0, 0, 640, 405))  
+  var speed = acceleration.sample(World.tickInteval).scan(v0, integrateAcceleration)
+  var position = speed.sample(World.tickInteval).filter(".isNonZero")
+    .scan(v(300,200), limitPosition(dimensions))  
     .combine(sine(5, .1, 1).map(function(y) { return v(0,y)}), ".add")
   var fairy = $("#fairy")
 
+  setElementSize(fairy, dimensions)
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
   wobble(fairy, sine(3, .1, 2))
-  return { position: position}
+  return { position: position }
+}
+
+function setElementSize(elem, dimensions) {
+  elem.css({width: dimensions.width, height: dimensions.height, "background-size": dimensions.width + " " + dimensions.height})
 }
 
 function wobble(thing, angle) {
@@ -77,6 +88,10 @@ function wobble(thing, angle) {
 }
 
 function Spaceman(fairyPos) {
+  var dimensions = {
+    width: 160,
+    height: 263
+  }
   var spaceman = $("#spaceman")
   spaceman.css({left:100, top:100})
   wobble(spaceman, sine(10, .1, 0))
@@ -84,13 +99,21 @@ function Spaceman(fairyPos) {
     var diff = fairyPos.subtract(prev)
     var dir = diff.withLength(diff.getLength() - 200)
     var move = dir.withLength(1)
-    return prev.add(dir)
+    var newPos = prev.add(dir)
+    return (outOfBounds(newPos, dimensions)) ? prev : newPos
   })
+  setElementSize(spaceman, dimensions)
   position.onValue( function(pos) { spaceman.css( { left : pos.x, top : pos.y } ) } )
   return { position: position}
 }
 
 $(function() {
+  World = {
+    tickInteval: 20,
+    width: 800,
+    height: 600
+  }
+  $("#sky").css({width: World.width, height: World.height})
   var fairy = Fairy()
   Spaceman(fairy.position)
 })
