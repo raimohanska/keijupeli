@@ -1,6 +1,9 @@
 body {
   background: #CBCFCF;
 }
+h1 {
+  display: none;
+}
 #sky {
   background: url('../images/tausta.jpg');
   background-color: #aaaaff;
