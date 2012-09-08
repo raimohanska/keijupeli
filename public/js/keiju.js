@@ -1,4 +1,5 @@
 var bus = new Bacon.Bus()
+var tickInteval = 20
 
 function show(value) { 
   console.log(value)
@@ -46,7 +47,7 @@ function integrateAcceleration(curSpeed, dir) {
 }
 
 function sine(amplitude, frequency, phase) {
-  return Bacon.interval(20)
+  return Bacon.interval(tickInteval)
     .scan(phase, function(prev) { return prev + frequency })
     .map(function(a) { return Math.sin(a) * amplitude})
 }
@@ -57,8 +58,8 @@ function Fairy() {
   var right = keyState(39, v(1, 0), v0)
   var down = keyState(40, v(0, 1), v0)
   var acceleration = Bacon.combineWith([up, left, right, down], ".add")
-  var speed = acceleration.sample(20).scan(v0, integrateAcceleration)
-  var position = speed.sample(20).filter(".isNonZero")
+  var speed = acceleration.sample(tickInteval).scan(v0, integrateAcceleration)
+  var position = speed.sample(tickInteval).filter(".isNonZero")
     .scan(v(300,200), limitPosition(0, 0, 640, 405))  
     .combine(sine(5, .1, 1).map(function(y) { return v(0,y)}), ".add")
   var fairy = $("#fairy")
