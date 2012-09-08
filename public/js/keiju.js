@@ -66,7 +66,7 @@ function Fairy() {
   var acceleration = Bacon.combineWith([up, left, right, down], ".add")
   var speed = acceleration.sample(World.tickInteval).scan(v0, integrateAcceleration)
   var position = speed.sample(World.tickInteval).filter(".isNonZero")
-    .scan(v(300,200), limitPosition(dimensions))  
+    .scan(v(World.width / 2 - dimensions.width / 2, World.height / 2 - dimensions.height / 2), limitPosition(dimensions))  
     .combine(sine(5, .1, 1).map(function(y) { return v(0,y)}), ".add")
   var fairy = $("#fairy")
 
@@ -113,7 +113,7 @@ $(function() {
     width: 800,
     height: 600
   }
-  $("#sky").css({width: World.width, height: World.height})
+  setElementSize($("#sky"), World)
   var fairy = Fairy()
   Spaceman(fairy.position)
 })
