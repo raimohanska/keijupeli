@@ -4,6 +4,23 @@ body {
 h1 {
   display: none;
 }
+#instructions {
+  position: absolute;
+  left: 150;
+  top: 50;
+  width: 500;
+  height: 430;
+  font-family: arial;
+  font-size: 38px;
+  background: url('../images/ohjeet.jpg') no-repeat;
+  background-size: 500;
+  border-style:solid;
+  border-width:kpx;
+  border-color: black;
+  border-radius: 10px;
+  display: none;
+}
+  
 #sky {
   background: url('../images/tausta.jpg');
   background-color: #aaaaff;

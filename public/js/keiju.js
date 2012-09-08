@@ -116,4 +116,8 @@ $(function() {
   setElementSize($("#sky"), World)
   var fairy = Fairy()
   Spaceman(fairy.position)
+  $("#instructions").fadeIn(1000)
+  Bacon.later(3000).onValue(function() {
+    $("#instructions").fadeOut(1000)
+  })
 })
