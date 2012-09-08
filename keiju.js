@@ -81,11 +81,9 @@ function Spaceman(fairyPos) {
   wobble(spaceman, sine(10, .1, 0))
   var position = fairyPos.changes().scan(v(100, 100), function(prev, fairyPos) {
     var diff = fairyPos.subtract(prev)
-    if (diff.getLength() > 140) {
-      var dir = diff.withLength(1)
-      return prev.add(dir)
-    }
-    return prev;
+    var dir = diff.withLength(diff.getLength() - 200)
+    var move = dir.withLength(1)
+    return prev.add(dir)
   })
   position.onValue( function(pos) { spaceman.css( { left : pos.x, top : pos.y } ) } )
   return { position: position}
