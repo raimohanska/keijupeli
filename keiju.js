@@ -45,10 +45,10 @@ function integrateAcceleration(curSpeed, dir) {
   }
 }
 
-function sine(factor, phase) {
+function sine(amplitude, frequency, phase) {
   return Bacon.interval(20)
-    .scan(phase, function(prev) { return prev+0.1 })
-    .map(function(a) { return Math.sin(a) * factor})
+    .scan(phase, function(prev) { return prev + frequency })
+    .map(function(a) { return Math.sin(a) * amplitude})
 }
 
 function Fairy() {
@@ -60,11 +60,11 @@ function Fairy() {
   var speed = acceleration.sample(20).scan(v0, integrateAcceleration)
   var position = speed.sample(20).filter(".isNonZero")
     .scan(v(300,200), limitPosition(0, 0, 640, 405))  
-    .combine(sine(5, 1).map(function(y) { return v(0,y)}), ".add")
+    .combine(sine(5, .1, 1).map(function(y) { return v(0,y)}), ".add")
   var fairy = $("#fairy")
 
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
-  wobble(fairy, sine(3, 2))
+  wobble(fairy, sine(3, .1, 2))
   return { position: position}
 }
 
@@ -78,7 +78,7 @@ function wobble(thing, angle) {
 function Spaceman(fairyPos) {
   var spaceman = $("#spaceman")
   spaceman.css({left:100, top:100})
-  wobble(spaceman, sine(10,0))
+  wobble(spaceman, sine(10, .1, 0))
   var position = fairyPos.changes().scan(v(100, 100), function(prev, fairyPos) {
     var diff = fairyPos.subtract(prev)
     if (diff.getLength() > 140) {
