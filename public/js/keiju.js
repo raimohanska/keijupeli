@@ -8,11 +8,17 @@ $(function() {
   var controller = KeyboardController().combine(TouchController($("#fairy")), ".add")
   var fairy = Fairy(controller)
   Spaceman(fairy.position)
-  //$("#instructions").fadeIn(1000)
-  Bacon.later(3000).onValue(function() {
-    $("#instructions").fadeOut(1000)
-  })
+  if (!isTouchDevice()) {
+    $("#instructions").fadeIn(1000)
+    Bacon.later(3000).onValue(function() {
+      $("#instructions").fadeOut(1000)
+    })
+  }
 })
+
+function isTouchDevice() {
+    return "ontouchstart" in window;
+}
 
 function KeyboardController() {
   function keyUps(keyCode) { 
