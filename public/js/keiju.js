@@ -5,7 +5,8 @@ $(function() {
     height: 600
   }
   setElementSize($("#sky"), World)
-  var fairy = Fairy(KeyboardController())
+  var controller = KeyboardController().combine(TouchController($("#fairy")), ".add")
+  var fairy = Fairy(controller)
   Spaceman(fairy.position)
   //$("#instructions").fadeIn(1000)
   Bacon.later(3000).onValue(function() {
@@ -31,6 +32,29 @@ function KeyboardController() {
   return Bacon.combineWith([up, left, right, down], ".add")
 }
 
+function TouchController(elem) {
+  function singleTouch(event) { return event.targetTouches.length == 1 }
+  function touchCoords(touchEvent) {
+    var touch = touchEvent.targetTouches[0]
+    return v(touch.clientX, touch.clientY)
+  }
+  function elemPos() {
+    var elemPos = elem.position()
+    return v(elemPos.left, elemPos.top)
+  }
+  return elem.asEventStream("touchstart").map(".originalEvent").do(".preventDefault").filter(singleTouch).map(touchCoords).flatMap(function(startPos) {
+    var elemStartPos = elemPos()
+    return elem.asEventStream("touchmove").map(".originalEvent").takeUntil(elem.asEventStream("touchend"))
+      .map(touchCoords).map(function(movePos) {
+        var deltaPos = movePos.subtract(startPos)
+        var elemTargetPos = elemStartPos.add(deltaPos)
+        var distanceToTarget = elemTargetPos.subtract(elemPos())
+        var move = distanceToTarget.withLength(1)
+        return move
+      }).mapEnd(v0)
+  }).toProperty(v0)
+}
+
 function Fairy(acceleration) {
   var dimensions = {
     width: 160,
@@ -46,28 +70,6 @@ function Fairy(acceleration) {
   setElementSize(fairy, dimensions)
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
   wobble(fairy, sine(3, .1, 2))
-  function singleTouch(event) { return event.targetTouches.length == 1 }
-  function touchCoords(touchEvent) {
-    var touch = touchEvent.targetTouches[0]
-    return v(touch.clientX, touch.clientY)
-  }
-  function fairyPos() {
-    var elemPos = $("#fairy").position()
-    return v(elemPos.left, elemPos.top)
-  }
-  fairy.asEventStream("touchstart").map(".originalEvent").do(".preventDefault").filter(singleTouch).map(touchCoords).flatMap(function(startPos) {
-    var fairyStartPos = fairyPos()
-    return fairy.asEventStream("touchmove").map(".originalEvent").takeUntil(fairy.asEventStream("touchend"))
-      .map(touchCoords).map(function(movePos) {
-        var deltaPos = movePos.subtract(startPos)
-        var fairyTargetPos = fairyStartPos.add(deltaPos)
-        var distanceToTarget = fairyTargetPos.subtract(fairyPos())
-        var move = distanceToTarget.withLength(1)
-        return move
-      }).mapEnd(v0)
-  }).toProperty(v0).onValue(function(move) {
-    console.log(move.getAngleDeg())
-  })
   return { position: position }
 }
 
