@@ -29,6 +29,22 @@
     taste: "delicious"
   };
 
+  Bacon.fromPromise = function(promise) {
+    return new Bacon.EventStream(function(sink) {
+      var onError, onSuccess;
+      onSuccess = function(value) {
+        sink(new Next(value));
+        return sink(new End);
+      };
+      onError = function(e) {
+        sink(new Error(e));
+        return sink(new End);
+      };
+      promise.then(onSuccess, onError);
+      return nop;
+    });
+  };
+
   Bacon.noMore = "veggies";
 
   Bacon.more = "moar bacon!";
@@ -75,6 +91,29 @@
         return clearInterval(id);
       };
       id = setInterval(handler, delay);
+      return unbind;
+    });
+  };
+
+  Bacon.fromEventTarget = function(target, eventName) {
+    return new EventStream(function(sink) {
+      var handler, unbind;
+      handler = function(event) {
+        var reply;
+        reply = sink(next(event));
+        if (reply === Bacon.noMore) return unbind();
+      };
+      if (target.addEventListener) {
+        unbind = function() {
+          return target.removeEventListener(eventName, handler, false);
+        };
+        target.addEventListener(eventName, handler, false);
+      } else {
+        unbind = function() {
+          return target.removeListener(eventName, handler);
+        };
+        target.addListener(eventName, handler);
+      }
       return unbind;
     });
   };
@@ -323,6 +362,12 @@
       });
     };
 
+    Observable.prototype.onEnd = function(f) {
+      return this.subscribe(function(event) {
+        if (event.isEnd()) return f();
+      });
+    };
+
     Observable.prototype.errors = function() {
       return this.filter(function() {
         return false;
@@ -386,7 +431,19 @@
       });
     };
 
+    Observable.prototype.mapError = function(f) {
+      f = toExtractor(f);
+      return this.withHandler(function(event) {
+        if (event.isError()) {
+          return this.push(next(f(event.error)));
+        } else {
+          return this.push(event);
+        }
+      });
+    };
+
     Observable.prototype["do"] = function(f) {
+      f = toExtractor(f);
       return this.withHandler(function(event) {
         if (event.hasValue()) f(event.value);
         return this.push(event);
@@ -454,6 +511,10 @@
     };
 
     Observable.prototype.distinctUntilChanged = function() {
+      return this.skipDuplicates();
+    };
+
+    Observable.prototype.skipDuplicates = function() {
       return this.withStateMachine(void 0, function(prev, event) {
         if (!event.hasValue()) {
           return [prev, [event]];
@@ -681,15 +742,15 @@
       });
     };
 
-    EventStream.prototype.end = function(value) {
-      if (value == null) value = "end";
+    EventStream.prototype.mapEnd = function(f) {
+      f = toExtractor(f);
       return this.withHandler(function(event) {
         if (event.isEnd()) {
-          this.push(next(value, event));
+          this.push(next(f(event)));
           this.push(end());
           return Bacon.noMore;
         } else {
-          return Bacon.more;
+          return this.push(event);
         }
       });
     };
@@ -801,7 +862,7 @@
         pushPropertyValue = function(sink, event, propertyVal, streamVal) {
           return sink(event.apply(combinator(propertyVal, streamVal)));
         };
-        return combine(sampler, nop, pushPropertyValue).changes().takeUntil(sampler.end());
+        return combine(sampler, nop, pushPropertyValue).changes().takeUntil(sampler.filter(false).mapEnd());
       };
     }
 
@@ -1001,7 +1062,7 @@
       };
       this.end = function() {
         unsubAll();
-        return sink(end());
+        if (sink != null) return sink(end());
       };
     }
 

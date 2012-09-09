@@ -7,7 +7,7 @@ $(function() {
   setElementSize($("#sky"), World)
   var fairy = Fairy(KeyboardController())
   Spaceman(fairy.position)
-  $("#instructions").fadeIn(1000)
+  //$("#instructions").fadeIn(1000)
   Bacon.later(3000).onValue(function() {
     $("#instructions").fadeOut(1000)
   })
@@ -46,6 +46,28 @@ function Fairy(acceleration) {
   setElementSize(fairy, dimensions)
   position.onValue( function(pos) { fairy.css( { left : pos.x, top : pos.y } ) } )
   wobble(fairy, sine(3, .1, 2))
+  function singleTouch(event) { return event.targetTouches.length == 1 }
+  function touchCoords(touchEvent) {
+    var touch = touchEvent.targetTouches[0]
+    return v(touch.clientX, touch.clientY)
+  }
+  function fairyPos() {
+    var elemPos = $("#fairy").position()
+    return v(elemPos.left, elemPos.top)
+  }
+  fairy.asEventStream("touchstart").map(".originalEvent").do(".preventDefault").filter(singleTouch).map(touchCoords).flatMap(function(startPos) {
+    var fairyStartPos = fairyPos()
+    return fairy.asEventStream("touchmove").map(".originalEvent").takeUntil(fairy.asEventStream("touchend"))
+      .map(touchCoords).map(function(movePos) {
+        var deltaPos = movePos.subtract(startPos)
+        var fairyTargetPos = fairyStartPos.add(deltaPos)
+        var distanceToTarget = fairyTargetPos.subtract(fairyPos())
+        var move = distanceToTarget.withLength(1)
+        return move
+      }).mapEnd(v0)
+  }).toProperty(v0).onValue(function(move) {
+    console.log(move.getAngleDeg())
+  })
   return { position: position }
 }
 
