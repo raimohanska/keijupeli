@@ -48,9 +48,9 @@ function TouchController(elem) {
     var elemPos = elem.position()
     return v(elemPos.left, elemPos.top)
   }
-  return elem.asEventStream("touchstart").map(".originalEvent").do(".preventDefault").filter(singleTouch).map(touchCoords).flatMap(function(startPos) {
+  return elem.asEventStream("touchstart").map(".originalEvent").do(".preventDefault").filter(singleTouch).map(touchCoords).switch(function(startPos) {
     var elemStartPos = elemPos()
-    return elem.asEventStream("touchmove").map(".originalEvent").takeUntil(elem.asEventStream("touchend"))
+    return elem.asEventStream("touchmove").map(".originalEvent").do(".preventDefault").takeUntil(elem.asEventStream("touchend"))
       .map(touchCoords).map(function(movePos) {
         var deltaPos = movePos.subtract(startPos)
         var elemTargetPos = elemStartPos.add(deltaPos)
