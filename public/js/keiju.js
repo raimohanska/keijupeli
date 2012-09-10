@@ -92,17 +92,27 @@ function wobble(thing, angle) {
 
 function Spaceman(fairyPos) {
   var dimensions = {
-    width: 160,
-    height: 263
+    width: 120,
+    height: 196
   }
   var spaceman = $("#spaceman")
   spaceman.css({left:100, top:100})
   wobble(spaceman, sine(10, .1, 0))
   var position = fairyPos.changes().scan(v(100, 100), function(prev, fairyPos) {
-    var diff = fairyPos.subtract(prev)
-    var dir = diff.withLength(diff.getLength() - 200)
-    var move = dir.withLength(1)
-    var newPos = prev.add(dir)
+    var distanceFromFairy = fairyPos.subtract(prev)
+    var diffToRadius = distanceFromFairy.getLength() - 180
+    var move
+    if (Math.abs(diffToRadius) < 5) {
+      // circle around
+      move = distanceFromFairy.rotateDeg(90).withLength(3)
+    } else if (diffToRadius > 0) {
+      // chase
+      move = distanceFromFairy.withLength(1)
+    } else {
+      // flee
+      move = distanceFromFairy.withLength(-2)
+    }
+    var newPos = prev.add(move)
     return (outOfBounds(newPos, dimensions)) ? prev : newPos
   })
   setElementSize(spaceman, dimensions)
