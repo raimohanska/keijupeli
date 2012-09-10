@@ -107,7 +107,7 @@ function Spaceman(fairyPos) {
   })
   setElementSize(spaceman, dimensions)
   position.onValue( function(pos) { spaceman.css( { left : pos.x, top : pos.y } ) } )
-  var tickle = spaceman.asEventStream("click").merge(spaceman.asEventStream("touchstart"))
+  var tickle = spaceman.asEventStream("click").merge(spaceman.asEventStream("touchstart").map(".originalEvent").do(".preventDefault"))
   tickle.onValue(audio.playSound("ala-kiusaa-minua"))
   tickle.delay(5000).onValue(audio.playSound("avaruusmies"))
   return { position: position}
