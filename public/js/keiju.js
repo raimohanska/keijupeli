@@ -107,6 +107,9 @@ function Spaceman(fairyPos) {
   })
   setElementSize(spaceman, dimensions)
   position.onValue( function(pos) { spaceman.css( { left : pos.x, top : pos.y } ) } )
+  var tickle = spaceman.asEventStream("click").merge(spaceman.asEventStream("touchstart"))
+  tickle.onValue(audio.playSound("ala-kiusaa-minua"))
+  tickle.delay(5000).onValue(audio.playSound("avaruusmies"))
   return { position: position}
 }
 
@@ -153,3 +156,28 @@ function sine(amplitude, frequency, phase) {
     .map(function(a) { return Math.sin(a) * amplitude})
 }
 
+audio = Audio()
+function Audio() {
+  var on = true
+  var sounds = {}
+
+  function loadSound(soundName) {
+    var audioElement = document.createElement('audio')
+    audioElement.setAttribute('src', "audio/" + soundName + ".mp3")
+    return audioElement
+  }
+
+  function getSound(soundName) {
+    if (!sounds[soundName]) {
+      sounds[soundName] = loadSound(soundName)
+    }
+    return sounds[soundName]
+  }
+  function play(soundName) {
+    if (on) getSound(soundName).play()
+  }
+  return {
+    playSound : function(soundName) { return function() { play(soundName) }},
+    toggle : function() { on = !on; }
+  }
+}
