@@ -96,7 +96,7 @@ function wobble(thing, angle) {
 }
 
 function Sun() {
-  linear(0, .1).onValue(rotate($("#sun")))
+  linear(0, .3).onValue(rotate($("#sun")))
 }
 
 function Spaceman(fairyPos) {
