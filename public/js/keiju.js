@@ -11,8 +11,8 @@ $(function() {
   Sun()
   if (!isTouchDevice()) {
     $("#instructions").fadeIn(1000)
-    Bacon.later(3000).onValue(function() {
-      $("#instructions").fadeOut(1000)
+    Bacon.later(3000).merge($("body").asEventStream("keyup")).take(1).onValue(function() {
+      $("#instructions").fadeOut(600)
     })
   }
 })
