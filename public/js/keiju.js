@@ -8,6 +8,7 @@ $(function() {
   var controller = KeyboardController().combine(TouchController($("#fairy")), ".add")
   var fairy = Fairy(controller)
   Spaceman(fairy.position)
+  Sun()
   if (!isTouchDevice()) {
     $("#instructions").fadeIn(1000)
     Bacon.later(3000).onValue(function() {
@@ -83,11 +84,19 @@ function setElementSize(elem, dimensions) {
   elem.css({width: dimensions.width, height: dimensions.height, "background-size": dimensions.width + " " + dimensions.height})
 }
 
-function wobble(thing, angle) {
-  angle.onValue(function(degree) {
+function rotate(thing) {
+  return function(degree) {
      thing.css({ WebkitTransform: 'rotate(' + degree + 'deg)'});
      thing.css({ '-moz-transform': 'rotate(' + degree + 'deg)'});
-  })
+  }
+}
+
+function wobble(thing, angle) {
+  angle.onValue(rotate(thing))
+}
+
+function Sun() {
+  linear(0, .1).onValue(rotate($("#sun")))
 }
 
 function Spaceman(fairyPos) {
@@ -160,9 +169,13 @@ function integrateAcceleration(curSpeed, dir) {
   }
 }
 
-function sine(amplitude, frequency, phase) {
+function linear(start, speed) {
   return Bacon.interval(World.tickInteval)
-    .scan(phase, function(prev) { return prev + frequency })
+    .scan(start, function(prev) { return prev + speed })
+}
+
+function sine(amplitude, frequency, phase) {
+  return linear(phase, frequency)
     .map(function(a) { return Math.sin(a) * amplitude})
 }
 

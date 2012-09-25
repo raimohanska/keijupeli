@@ -31,6 +31,16 @@ h1 {
   border-color: #A8A8A8;
   border-radius: 10px;
 }
+#sun { 
+  background-image: url('../images/aurinko.png');
+  background-repeat:no-repeat;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: block;
+  width: 256px;
+  height: 256px;
+}
 #fairy { 
   background-image: url('../images/keiju.png');
   background-repeat:no-repeat;
