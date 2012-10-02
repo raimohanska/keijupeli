@@ -9,6 +9,7 @@ $(function() {
   var fairy = Fairy(controller)
   Spaceman(fairy.position)
   Elephant()
+  Bird()
   Sun()
   if (!isTouchDevice()) {
     $("#instructions").fadeIn(1000)
@@ -100,6 +101,13 @@ function Sun() {
   linear(0, .3).onValue(rotate($("#sun")))
 }
 
+function Bird() {
+  var bird = $("#bird")
+  var anim = Bacon.interval(500).scan(1, function(i) { return i % 2 + 1 })
+  anim.onValue(function(i) { 
+    bird.css("background-image", "url('images/lintu" + i + ".png')")
+  })
+}
 function Elephant() {
   var elephant = $("#elephant")
   var anim = Bacon.interval(500).scan(1, function(i) { return i % 2 + 1 })
