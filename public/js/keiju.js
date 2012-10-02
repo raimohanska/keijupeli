@@ -106,7 +106,7 @@ function Elephant() {
   anim.onValue(function(i) { 
     elephant.css("background-image", "url('images/norsu" + i + ".png')")
   })
-  var pos = Bacon.interval(100).scan(1, function(i) { return (i + 3) % (World.width - elephant.width()) })
+  var pos = Bacon.interval(100).scan(1, function(i) { return (i + 1) % (World.width - elephant.width()) })
   pos.onValue( function(x) { elephant.css( { left : x } ) } )
 }
 
