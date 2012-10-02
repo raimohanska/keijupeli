@@ -105,7 +105,7 @@ function Bird() {
   var dimensions = { width: 100, height: 100 }
   var bird = $("#bird")
   setElementSize(bird, dimensions)
-  var anim = Bacon.interval(500).scan(1, function(i) { return i % 2 + 1 })
+  var anim = Bacon.interval(200).scan(1, function(i) { return i % 2 + 1 })
   anim.onValue(function(i) { 
     bird.css("background-image", "url('images/lintu" + i + ".png')")
   })
