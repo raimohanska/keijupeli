@@ -60,9 +60,6 @@ h1 {
   display: block;
   left: 100px;
   top: 10px;
-  width: 200px;
-  background-size: 200;
-  height: 200px;
 }
 #elephant { 
   background-image: url('../images/norsu1.png');
@@ -71,7 +68,4 @@ h1 {
   display: block;
   left: 100px;
   bottom: 10px;
-  width: 200px;
-  background-size: 200;
-  height: 100px;
 }
