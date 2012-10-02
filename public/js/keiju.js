@@ -8,6 +8,7 @@ $(function() {
   var controller = KeyboardController().combine(TouchController($("#fairy")), ".add")
   var fairy = Fairy(controller)
   Spaceman(fairy.position)
+  Elephant()
   Sun()
   if (!isTouchDevice()) {
     $("#instructions").fadeIn(1000)
@@ -86,8 +87,8 @@ function setElementSize(elem, dimensions) {
 
 function rotate(thing) {
   return function(degree) {
-     thing.css({ WebkitTransform: 'rotate(' + degree + 'deg)'});
-     thing.css({ '-moz-transform': 'rotate(' + degree + 'deg)'});
+     //thing.css({ WebkitTransform: 'rotate(' + degree + 'deg)'});
+     //thing.css({ '-moz-transform': 'rotate(' + degree + 'deg)'});
   }
 }
 
@@ -97,6 +98,16 @@ function wobble(thing, angle) {
 
 function Sun() {
   linear(0, .3).onValue(rotate($("#sun")))
+}
+
+function Elephant() {
+  var elephant = $("#elephant")
+  var anim = Bacon.interval(500).scan(1, function(i) { return i % 2 + 1 })
+  anim.onValue(function(i) { 
+    elephant.css("background-image", "url('images/norsu" + i + ".png')")
+  })
+  var pos = Bacon.interval(100).scan(1, function(i) { return (i + 3) % (World.width - elephant.width()) })
+  pos.onValue( function(x) { elephant.css( { left : x } ) } )
 }
 
 function Spaceman(fairyPos) {
